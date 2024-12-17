@@ -197,38 +197,6 @@ export class Board {
   }
 
   /**
-   * Checks if a position can have an X placed on it.
-   * A position is valid for X if it's attacked by any queen (same row, column, diagonal, or color region).
-   */
-  private isValidXPlacement(position: BoardPosition): boolean {
-    const { row, col } = position;
-
-    // Can't place X where a queen is
-    if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
-      return false;
-    }
-
-    // Check if this position is attacked by any queen
-    for (let r = 0; r < Board.BOARD_SIZE; r++) {
-      for (let c = 0; c < Board.BOARD_SIZE; c++) {
-        if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
-          // Position is attacked if:
-          const sameRow = r === row; // Queen in same row
-          const sameCol = c === col; // Queen in same column
-          const sameDiagonal = Math.abs(row - r) === Math.abs(col - c); // Queen on diagonal
-          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col]; // Queen in same region
-
-          if (sameRow || sameCol || sameDiagonal || sameRegion) {
-            return true; // Position is attacked, can place X
-          }
-        }
-      }
-    }
-
-    return false; // Position is not attacked by any queen
-  }
-
-  /**
    * Places a queen on the board at the specified position
    */
   private placeQueen(position: BoardPosition): void {
