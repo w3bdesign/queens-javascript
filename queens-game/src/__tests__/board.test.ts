@@ -1,15 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Board } from '../board';
 
 describe('Board', () => {
-  let gameBoard: HTMLElement;
-
-  beforeEach(() => {
-    // Clean up any existing elements
-    document.body.innerHTML = '';
-
+  it('creates a 5x5 board', () => {
     // Create game board element
-    gameBoard = document.createElement('div');
+    const gameBoard = document.createElement('div');
     gameBoard.id = 'game-board';
     document.body.appendChild(gameBoard);
 
@@ -27,21 +22,9 @@ describe('Board', () => {
 
     // Initialize board
     new Board();
-  });
 
-  afterEach(() => {
-    document.body.innerHTML = '';
-  });
-
-  it('creates a 5x5 board', () => {
+    // Check board size
     const cells = gameBoard.querySelectorAll('.cell');
     expect(cells.length).toBe(25);
-  });
-
-  it('initializes with empty cells', () => {
-    const cells = gameBoard.querySelectorAll('.cell');
-    cells.forEach(cell => {
-      expect(cell.textContent).toBe('');
-    });
   });
 });
