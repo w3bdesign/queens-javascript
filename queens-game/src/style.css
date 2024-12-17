@@ -9,7 +9,7 @@
   --region-1-color: #a8c6df;  /* Light blue */
   --region-2-color: #b5d5a7;  /* Light green */
   --region-3-color: #d7b7a3;  /* Light brown */
-  --queen-size: 2.6rem;  /* Define queen size as a variable */
+  --queen-size: 2.6rem;
 }
 
 * {
@@ -87,9 +87,10 @@ h1 {
 }
 
 .x-mark {
-  font-size: 1.5rem;
+  font-size: var(--queen-size);
   color: #666;
   opacity: 0.8;
+  user-select: none;
 }
 
 .invalid {
@@ -146,8 +147,14 @@ h1 {
   padding: 2rem;
   border-radius: 8px;
   max-width: 500px;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
 }
 
 .tutorial-text {
@@ -155,6 +162,21 @@ h1 {
   line-height: 1.6;
   color: var(--primary-color);
   font-size: 1.1rem;
+  text-align: left;
+}
+
+.tutorial-text ol {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.tutorial-text li {
+  margin-bottom: 0.5rem;
+}
+
+.modal-content .button-container {
+  text-align: center;
+  margin-top: 1.5rem;
 }
 
 button {
@@ -167,6 +189,7 @@ button {
   transition: all 0.3s ease;
   font-size: 1rem;
   font-weight: 500;
+  display: inline-block;
 }
 
 button:hover {
@@ -228,6 +251,14 @@ button:active {
   align-items: center;
   font-size: var(--queen-size);
   color: #000;
+  position: relative;
+}
+
+.tutorial-cell .x-mark {
+  position: absolute;
+  font-size: var(--queen-size);
+  color: #666;
+  opacity: 0.8;
 }
 
 .tutorial-cell.region-1 { background-color: var(--region-1-color); }
