@@ -174,8 +174,11 @@ export class Board {
     if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
       // Remove existing queen
       this.removeQueen(position);
+    } else if (this.boardState[row][col] === Board.X_SYMBOL) {
+      // Show invalid placement message for X markers
+      this.showInvalidPlacement(position, 'Cannot place queen on attacked square (Left click to remove marker)');
     } else {
-      // Try to place new queen
+      // Try to place new queen on empty square
       const validation = this.validateQueenPlacement(position);
       if (validation.isValid) {
         this.placeQueen(position);
@@ -342,11 +345,11 @@ export class Board {
   private validateQueenPlacement(position: BoardPosition): BoardValidation {
     const { row, col } = position;
 
-    // Can't place queen on X
+    // Can't place queen on X (attacked square)
     if (this.boardState[row][col] === Board.X_SYMBOL) {
       return {
         isValid: false,
-        reason: 'Cannot place queen on an X marker',
+        reason: 'Cannot place queen on attacked square (Left click to remove marker)',
       };
     }
 
