@@ -11,23 +11,23 @@ interface BoardValidation {
 export class Board {
   private static readonly BOARD_SIZE = 5;
   private static readonly QUEEN_SYMBOL = '♛';
-  
+
   private boardState: (string | null)[][];
   private boardElement: HTMLElement;
-  
+
   // Define color regions for the board (1-3 represent different colored areas)
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
     [1, 1, 2, 3, 2],
     [1, 2, 2, 3, 3],
     [2, 2, 3, 3, 3],
-    [2, 2, 3, 3, 3]
+    [2, 2, 3, 3, 3],
   ];
 
   constructor() {
     // Initialize empty board state
     this.boardState = this.createEmptyBoard();
-    
+
     // Get board element from DOM
     const element = document.getElementById('game-board');
     if (!element) throw new Error('Game board element not found');
@@ -63,15 +63,15 @@ export class Board {
   private createBoardCell(position: BoardPosition): HTMLElement {
     const { row, col } = position;
     const cell = document.createElement('div');
-    
+
     // Set cell properties
     cell.className = `cell region-${this.colorRegions[row][col]}`;
     cell.dataset.row = row.toString();
     cell.dataset.col = col.toString();
-    
+
     // Add click handler
     cell.addEventListener('click', () => this.handleCellClick(position));
-    
+
     return cell;
   }
 
@@ -86,7 +86,7 @@ export class Board {
       this.removeQueen(position);
     } else {
       const validation = this.validateQueenPlacement(position);
-      
+
       if (validation.isValid) {
         this.placeQueen(position);
         this.checkWinCondition();
@@ -102,7 +102,7 @@ export class Board {
   private placeQueen(position: BoardPosition): void {
     const { row, col } = position;
     this.boardState[row][col] = Board.QUEEN_SYMBOL;
-    
+
     const cell = this.getCellElement(position);
     if (cell) {
       cell.innerHTML = `<span class="queen">${Board.QUEEN_SYMBOL}</span>`;
@@ -116,7 +116,7 @@ export class Board {
   private removeQueen(position: BoardPosition): void {
     const { row, col } = position;
     this.boardState[row][col] = null;
-    
+
     const cell = this.getCellElement(position);
     if (cell) {
       cell.innerHTML = '';
@@ -131,7 +131,7 @@ export class Board {
     const cell = this.getCellElement(position);
     if (cell) {
       cell.classList.add('invalid');
-      
+
       // Create temporary queen for visual feedback
       const tempQueen = document.createElement('span');
       tempQueen.textContent = Board.QUEEN_SYMBOL;
@@ -177,10 +177,10 @@ export class Board {
    * Validates row placement
    */
   private validateRow({ row }: BoardPosition): BoardValidation {
-    const hasQueen = this.boardState[row].some(cell => cell !== null);
+    const hasQueen = this.boardState[row].some((cell) => cell !== null);
     return {
       isValid: !hasQueen,
-      reason: hasQueen ? 'Row already contains a queen' : undefined
+      reason: hasQueen ? 'Row already contains a queen' : undefined,
     };
   }
 
@@ -188,10 +188,10 @@ export class Board {
    * Validates column placement
    */
   private validateColumn({ col }: BoardPosition): BoardValidation {
-    const hasQueen = this.boardState.some(row => row[col] !== null);
+    const hasQueen = this.boardState.some((row) => row[col] !== null);
     return {
       isValid: !hasQueen,
-      reason: hasQueen ? 'Column already contains a queen' : undefined
+      reason: hasQueen ? 'Column already contains a queen' : undefined,
     };
   }
 
@@ -201,18 +201,18 @@ export class Board {
   private validateColorRegion(position: BoardPosition): BoardValidation {
     const { row, col } = position;
     const region = this.colorRegions[row][col];
-    
+
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
         if (this.colorRegions[r][c] === region && this.boardState[r][c] !== null) {
           return {
             isValid: false,
-            reason: 'Color region already contains a queen'
+            reason: 'Color region already contains a queen',
           };
         }
       }
     }
-    
+
     return { isValid: true };
   }
 
@@ -221,20 +221,20 @@ export class Board {
    */
   private validateDiagonals(position: BoardPosition): BoardValidation {
     const { row, col } = position;
-    
+
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
         if (this.boardState[r][c] !== null) {
           if (Math.abs(row - r) === Math.abs(col - c)) {
             return {
               isValid: false,
-              reason: 'Queen can be attacked diagonally'
+              reason: 'Queen can be attacked diagonally',
             };
           }
         }
       }
     }
-    
+
     return { isValid: true };
   }
 
