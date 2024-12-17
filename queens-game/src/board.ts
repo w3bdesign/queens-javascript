@@ -1,3 +1,5 @@
+import confetti from 'canvas-confetti';
+
 interface BoardPosition {
   row: number;
   col: number;
@@ -17,13 +19,13 @@ export class Board {
   private boardState: CellState[][];
   private boardElement: HTMLElement;
   private autoXMode: boolean = true;
-  
+
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
     [1, 1, 2, 2, 2],
     [1, 2, 2, 3, 3],
     [2, 2, 3, 3, 3],
-    [2, 2, 3, 3, 3]
+    [2, 2, 3, 3, 3],
   ];
 
   constructor() {
@@ -122,51 +124,50 @@ export class Board {
     });
 
     return cell;
-}
-
-/**
- * Handles left click events (X markers)
- */
-private handleLeftClick(position: BoardPosition): void {
-  const { row, col } = position;
-
-  if (this.boardState[row][col] === null) {
-    // Empty cell - try to place X
-    if (this.isValidXPlacement(position)) {
-      this.placeX(position);
-    } else {
-      // Show feedback for why X can't be placed here
-      this.showInvalidPlacement(position, "This square is not attacked by any queen");
-    }
-  } else if (this.boardState[row][col] === Board.X_SYMBOL) {
-    // X exists - remove it
-    this.removeX(position);
-  } else if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
-    // Show feedback that queens are placed with right click
-    this.showInvalidPlacement(position, "Right click to remove queens");
   }
-}
 
-/**
- * Handles right click events (queens)
- */
-private handleRightClick(position: BoardPosition): void {
-  const { row, col } = position;
+  /**
+   * Handles left click events (X markers)
+   */
+  private handleLeftClick(position: BoardPosition): void {
+    const { row, col } = position;
 
-  if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
-    // Remove existing queen
-    this.removeQueen(position);
-  } else {
-    // Try to place new queen
-    const validation = this.validateQueenPlacement(position);
-    if (validation.isValid) {
-      this.placeQueen(position);
-      this.checkWinCondition();
-    } else {
-      this.showInvalidPlacement(position, validation.reason);
+    if (this.boardState[row][col] === null) {
+      // Empty cell - try to place X
+      if (this.isValidXPlacement(position)) {
+        this.placeX(position);
+      } else {
+        // Show feedback for why X can't be placed here
+        this.showInvalidPlacement(position, 'This square is not attacked by any queen');
+      }
+    } else if (this.boardState[row][col] === Board.X_SYMBOL) {
+      // X exists - remove it
+      this.removeX(position);
+    } else if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+      // Show feedback that queens are placed with right click
+      this.showInvalidPlacement(position, 'Right click to remove queens');
     }
   }
 
+  /**
+   * Handles right click events (queens)
+   */
+  private handleRightClick(position: BoardPosition): void {
+    const { row, col } = position;
+
+    if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+      // Remove existing queen
+      this.removeQueen(position);
+    } else {
+      // Try to place new queen
+      const validation = this.validateQueenPlacement(position);
+      if (validation.isValid) {
+        this.placeQueen(position);
+        this.checkWinCondition();
+      } else {
+        this.showInvalidPlacement(position, validation.reason);
+      }
+    }
   }
 
   /**
@@ -186,19 +187,19 @@ private handleRightClick(position: BoardPosition): void {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
         if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
           // Position is attacked if:
-          const sameRow = r === row;              // Queen in same row
-          const sameCol = c === col;              // Queen in same column
-          const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);  // Queen on diagonal
-          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];  // Queen in same region
+          const sameRow = r === row; // Queen in same row
+          const sameCol = c === col; // Queen in same column
+          const sameDiagonal = Math.abs(row - r) === Math.abs(col - c); // Queen on diagonal
+          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col]; // Queen in same region
 
           if (sameRow || sameCol || sameDiagonal || sameRegion) {
-            return true;  // Position is attacked, can place X
+            return true; // Position is attacked, can place X
           }
         }
       }
     }
 
-    return false;  // Position is not attacked by any queen
+    return false; // Position is not attacked by any queen
   }
 
   /**
@@ -297,7 +298,7 @@ private handleRightClick(position: BoardPosition): void {
     if (this.boardState[row][col] === Board.X_SYMBOL) {
       return {
         isValid: false,
-        reason: 'Cannot place queen on an X marker'
+        reason: 'Cannot place queen on an X marker',
       };
     }
 
@@ -403,12 +404,66 @@ private handleRightClick(position: BoardPosition): void {
 
     // Get number of unique regions
     const uniqueRegions = new Set(this.colorRegions.flat()).size;
-    
     // Win when we have exactly one queen in each region
     if (queenCount === uniqueRegions) {
-      setTimeout(() => {
-        alert('Congratulations! You solved the puzzle!');
-      }, 500);
+      this.showWinAnimation();
     }
+  }
+
+  /**
+   * Shows winning animation with confetti and toast
+   */
+  private showWinAnimation(): void {
+    // Create and show toast
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = 'Congratulations! You solved the puzzle! 👑';
+    const container = document.getElementById('toast-container');
+    if (container) {
+      container.appendChild(toast);
+      setTimeout(() => container.removeChild(toast), 3000);
+    }
+
+    // Trigger confetti animation
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      colors: ['#f1c40f', '#e74c3c', '#2ecc71', '#3498db'],
+    };
+
+    const fire = (particleRatio: number, opts: confetti.Options) => {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio),
+      });
+    };
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
   }
 }
