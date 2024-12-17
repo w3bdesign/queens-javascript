@@ -27,12 +27,19 @@ export class Tutorial {
 
     private readonly tutorialSteps: TutorialStep[] = [
         {
-            board: Array(5).fill(null).map((_, row) => 
-                Array(5).fill(null).map((_, col) => 
+            board: Array(5).fill(null).map((_, row) =>
+                Array(5).fill(null).map(() => ({}))
+            ),
+            text: `Controls: Right-click to place/remove ${Tutorial.QUEEN}s, left-click to mark/unmark squares with ${Tutorial.X}. Let's begin!`,
+            buttonText: "Got it"
+        },
+        {
+            board: Array(5).fill(null).map((_, row) =>
+                Array(5).fill(null).map((_, col) =>
                     row === 0 && col === 0 ? { queen: true } : {}
                 )
             ),
-            text: `Let's start with a queen in the top-left. Each row can only have one ${Tutorial.QUEEN}.`,
+            text: `Right-click to place a ${Tutorial.QUEEN} in the top-left blue region.`,
             buttonText: "Show me"
         },
         {
@@ -42,7 +49,7 @@ export class Tutorial {
                     row === 0 || col === 0 ? { x: true } : {}
                 )
             ),
-            text: `Each column can also only have one ${Tutorial.QUEEN}. We mark X where queens cannot go in this column.`,
+            text: `Each column can only have one ${Tutorial.QUEEN}. Left-click to mark attacked squares with ${Tutorial.X}.`,
             buttonText: "Show me"
         },
         {
