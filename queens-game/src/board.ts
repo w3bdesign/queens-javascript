@@ -132,21 +132,37 @@ export class Board {
   private handleLeftClick(position: BoardPosition): void {
     const { row, col } = position;
 
-    if (this.boardState[row][col] === null) {
-      // Empty cell - try to place X
-      if (this.isValidXPlacement(position)) {
-        this.placeX(position);
-      } else {
-        // Show feedback for why X can't be placed here
-        this.showInvalidPlacement(position, 'This square is not attacked by any queen');
-      }
-    } else if (this.boardState[row][col] === Board.X_SYMBOL) {
-      // X exists - remove it
-      this.removeX(position);
-    } else if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+    if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
       // Show feedback that queens are placed with right click
       this.showInvalidPlacement(position, 'Right click to remove queens');
+      return;
     }
+
+    if (this.boardState[row][col] === Board.X_SYMBOL) {
+      // X exists - remove it
+      this.removeX(position);
+      return;
+    }
+
+    // Check if position is attacked by any queen
+    for (let r = 0; r < Board.BOARD_SIZE; r++) {
+      for (let c = 0; c < Board.BOARD_SIZE; c++) {
+        if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
+          const sameRow = r === row;
+          const sameCol = c === col;
+          const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);
+          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];
+
+          if (sameRow || sameCol || sameDiagonal || sameRegion) {
+            this.placeX(position);
+            return;
+          }
+        }
+      }
+    }
+
+    // Show feedback for why X can't be placed here
+    this.showInvalidPlacement(position, 'This square is not attacked by any queen');
   }
 
   /**
@@ -230,14 +246,19 @@ export class Board {
     // Check each cell on the board
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
-        // Skip the queen's position and already marked positions
-        if ((r === row && c === col) || this.boardState[r][c] !== null) {
+        // Skip queen positions
+        if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
           continue;
         }
 
         const position = { row: r, col: c };
-        // If the position can have an X placed, place it
-        if (this.isValidXPlacement(position)) {
+        // Check if position is attacked by this queen
+        const sameRow = r === row;
+        const sameCol = c === col;
+        const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);
+        const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];
+
+        if (sameRow || sameCol || sameDiagonal || sameRegion) {
           this.placeX(position);
         }
       }
@@ -249,12 +270,39 @@ export class Board {
    */
   private removeQueen(position: BoardPosition): void {
     const { row, col } = position;
-    this.boardState[row][col] = null;
+    
+    // Store positions of all queens before removal
+    const queens: BoardPosition[] = [];
+    for (let r = 0; r < Board.BOARD_SIZE; r++) {
+      for (let c = 0; c < Board.BOARD_SIZE; c++) {
+        if (this.boardState[r][c] === Board.QUEEN_SYMBOL && (r !== row || c !== col)) {
+          queens.push({ row: r, col: c });
+        }
+      }
+    }
 
+    // Remove the queen
+    this.boardState[row][col] = null;
     const cell = this.getCellElement(position);
     if (cell) {
       cell.innerHTML = '';
       cell.classList.remove('valid');
+    }
+
+    if (this.autoXMode) {
+      // Clear all X markers
+      for (let r = 0; r < Board.BOARD_SIZE; r++) {
+        for (let c = 0; c < Board.BOARD_SIZE; c++) {
+          if (this.boardState[r][c] === Board.X_SYMBOL) {
+            this.removeX({ row: r, col: c });
+          }
+        }
+      }
+
+      // Recalculate X markers for each remaining queen
+      queens.forEach(queen => {
+        this.markAttackedSquares(queen);
+      });
     }
   }
 
