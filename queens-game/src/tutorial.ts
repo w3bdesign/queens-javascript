@@ -14,8 +14,9 @@ export class Tutorial {
     private static readonly QUEEN = '♛';
     private static readonly X = 'X';
     private tutorialBoard: HTMLElement;
-    private currentStep: number = 0;
+    private currentStep = 0;
 
+    // Define color regions for the board
     private readonly colorRegions: number[][] = [
         [1, 1, 2, 2, 2],
         [1, 1, 2, 3, 2],
@@ -26,63 +27,57 @@ export class Tutorial {
 
     private readonly tutorialSteps: TutorialStep[] = [
         {
-            board: [
-                [{ queen: true }, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}]
-            ],
-            text: `Each row can only have one ${Tutorial.QUEEN}. You can use X to show where ${Tutorial.QUEEN} cannot go.`,
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => 
+                    row === 0 && col === 0 ? { queen: true } : {}
+                )
+            ),
+            text: `Let's start with a queen in the blue region. Each row can only have one ${Tutorial.QUEEN}.`,
             buttonText: "Show me"
         },
         {
-            board: [
-                [{ queen: true }, { x: true }, { x: true }, { x: true }, { x: true }],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}],
-                [{}, {}, {}, {}, {}]
-            ],
-            text: `Each column can also only have one ${Tutorial.QUEEN}. Tap to place X and we'll place the other X's for you for now.`,
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => 
+                    row === 0 && col === 0 ? { queen: true } :
+                    row === 0 || col === 0 ? { x: true } : {}
+                )
+            ),
+            text: `Each column can also only have one ${Tutorial.QUEEN}. We mark X where queens cannot go in this column.`,
             buttonText: "Show me"
         },
         {
-            board: [
-                [{ queen: true }, { x: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, {}, {}, {}, {}],
-                [{ x: true }, {}, {}, {}, {}],
-                [{ x: true }, {}, {}, {}, {}],
-                [{ x: true }, {}, {}, {}, {}]
-            ],
-            text: `${Tutorial.QUEEN} cannot touch each other, not even diagonally. You can use X to mark all cells surrounding ${Tutorial.QUEEN}.`,
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => 
+                    row === 0 && col === 0 ? { queen: true } :
+                    row === 0 || col === 0 || (row === 1 && col === 1) ? { x: true } : {}
+                )
+            ),
+            text: `${Tutorial.QUEEN} cannot touch each other diagonally either. Notice how the X's mark all attacking squares.`,
             buttonText: "Show me"
         },
         {
-            board: [
-                [{ queen: true }, { x: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { x: true }, { x: true }, { queen: true }],
-                [{ x: true }, { queen: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }]
-            ],
-            text: `Here's everything we just learned:<ol>
-                <li>Your goal is to have exactly one ${Tutorial.QUEEN} in each row, column, and color region.</li>
-                <li>Tap once to place X and tap twice for ${Tutorial.QUEEN}. Use X to mark where ${Tutorial.QUEEN} cannot be placed.</li>
-                <li>Two ${Tutorial.QUEEN} cannot touch each other, not even diagonally.</li>
-                </ol>`,
-            buttonText: "See completed grid"
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => {
+                    if (row === 0 && col === 0) return { queen: true };
+                    if (row === 0 || col === 0 || (row === 1 && col === 1)) return { x: true };
+                    return {};
+                })
+            ),
+            text: `Each color region must also have exactly one ${Tutorial.QUEEN}. Looking at the blue region, we can only place one more queen here.`,
+            buttonText: "Show me"
         },
         {
-            board: [
-                [{ queen: true }, { x: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { x: true }, { x: true }, { queen: true }],
-                [{ x: true }, { queen: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }]
-            ],
-            text: "Game on! You're ready to play!",
-            buttonText: "Play game"
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => {
+                    if (row === 0 && col === 0) return { queen: true };
+                    if (row === 1 && col === 3) return { queen: true };
+                    if (row <= 1 || col === 0 || col === 3 || 
+                        (row === 2 && col <= 1) || (row === 2 && col === 2)) return { x: true };
+                    return {};
+                })
+            ),
+            text: `After placing a queen, mark all squares it attacks with X. This helps find safe squares for the next queen.`,
+            buttonText: "Got it!"
         }
     ];
 
@@ -139,29 +134,27 @@ export class Tutorial {
         const button = document.querySelector('#close-tutorial');
         if (!button) return;
 
-        // Remove any existing event listeners
-        button.replaceWith(button.cloneNode(true));
-        
-        // Get the fresh button reference
-        const newButton = document.querySelector('#close-tutorial');
-        if (!newButton) return;
+        // Create a new button to ensure no duplicate event listeners
+        const newButton = button.cloneNode(true) as HTMLElement;
+        if (button.parentNode) {
+            button.parentNode.replaceChild(newButton, button);
+        }
 
-        // Add new event listener
+        // Add event listener to the new button
         newButton.addEventListener('click', (e: Event) => {
-            e.preventDefault(); // Prevent any default button behavior
+            e.preventDefault();
+            e.stopPropagation();
 
             if (this.currentStep < this.tutorialSteps.length - 1) {
-                // Move to next step
                 this.currentStep++;
                 this.initializeTutorialBoard();
             } else {
-                // On final step, close the tutorial
                 const modal = document.querySelector('#tutorial-modal');
                 if (modal) {
                     modal.classList.add('hidden');
                 }
                 this.hide();
-                this.currentStep = 0; // Reset for next time
+                this.currentStep = 0;
             }
         });
     }
