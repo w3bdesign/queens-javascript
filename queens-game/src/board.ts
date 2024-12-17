@@ -176,7 +176,14 @@ export class Board {
       this.removeQueen(position);
     } else if (this.boardState[row][col] === Board.X_SYMBOL) {
       // Show invalid placement message for X markers
-      this.showInvalidPlacement(position, 'Cannot place queen on attacked square (Left click to remove marker)');
+      
+      
+      this.showInvalidPlacement(
+        position,
+        'Cannot place queen on attacked square (Left click to remove marker)'
+      );
+
+
     } else {
       // Try to place new queen on empty square
       const validation = this.validateQueenPlacement(position);
@@ -273,7 +280,7 @@ export class Board {
    */
   private removeQueen(position: BoardPosition): void {
     const { row, col } = position;
-    
+
     // Store positions of all queens before removal
     const queens: BoardPosition[] = [];
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
@@ -303,7 +310,7 @@ export class Board {
       }
 
       // Recalculate X markers for each remaining queen
-      queens.forEach(queen => {
+      queens.forEach((queen) => {
         this.markAttackedSquares(queen);
       });
     }
@@ -316,6 +323,9 @@ export class Board {
     const cell = this.getCellElement(position);
     if (cell) {
       cell.classList.add('invalid');
+
+      // Store original content
+      const originalContent = cell.innerHTML;
 
       // Create temporary queen for visual feedback
       const tempQueen = document.createElement('span');
@@ -331,10 +341,10 @@ export class Board {
         cell.appendChild(tooltip);
       }
 
-      // Remove temporary elements and invalid class
+      // Remove temporary elements and invalid class, restore original content
       setTimeout(() => {
         cell.classList.remove('invalid');
-        cell.innerHTML = '';
+        cell.innerHTML = originalContent;
       }, 500);
     }
   }
