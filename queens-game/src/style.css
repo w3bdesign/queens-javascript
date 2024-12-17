@@ -6,6 +6,9 @@
   --highlight-color: #3498db;
   --error-color: #e74c3c;
   --success-color: #2ecc71;
+  --region-1-color: #a8c6df;  /* Light blue */
+  --region-2-color: #b5d5a7;  /* Light green */
+  --region-3-color: #d7b7a3;  /* Light brown */
 }
 
 * {
@@ -28,6 +31,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  padding: 2rem;
 }
 
 .header {
@@ -37,6 +41,7 @@ body {
 h1 {
   color: var(--primary-color);
   margin-bottom: 1rem;
+  font-size: 2.5rem;
 }
 
 .game-board {
@@ -45,6 +50,8 @@ h1 {
   grid-template-rows: repeat(5, var(--cell-size));
   border: 2px solid var(--primary-color);
   position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
 .cell {
@@ -56,30 +63,55 @@ h1 {
   align-items: center;
   cursor: pointer;
   font-size: 2rem;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   position: relative;
 }
 
 .cell:hover {
   background-color: rgba(52, 152, 219, 0.1);
+  transform: scale(1.02);
+  z-index: 1;
 }
 
-.cell.region-1 { background-color: #fff; }
-.cell.region-2 { background-color: #f0f0f0; }
-.cell.region-3 { background-color: #e0e0e0; }
+.cell.region-1 { background-color: var(--region-1-color); }
+.cell.region-2 { background-color: var(--region-2-color); }
+.cell.region-3 { background-color: var(--region-3-color); }
 
 .queen {
   font-size: 2.5rem;
   animation: place-queen 0.3s ease-out;
+  user-select: none;
 }
 
 .invalid {
   animation: shake 0.5s ease-in-out;
-  color: var(--error-color);
 }
 
-.valid {
+.invalid .queen {
+  color: var(--error-color);
+  opacity: 0.7;
+}
+
+.valid .queen {
   color: var(--success-color);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: absolute;
+  background-color: rgba(44, 62, 80, 0.9);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-out;
 }
 
 /* Modal styles */
@@ -94,6 +126,7 @@ h1 {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(3px);
 }
 
 .modal.hidden {
@@ -106,30 +139,46 @@ h1 {
   border-radius: 8px;
   max-width: 500px;
   text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tutorial-text {
+  margin: 1.5rem 0;
+  line-height: 1.6;
+  color: var(--primary-color);
+  font-size: 1.1rem;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   background-color: var(--highlight-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 button:hover {
   background-color: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+  transform: translateY(0);
 }
 
 /* Animations */
 @keyframes place-queen {
   from {
-    transform: scale(0);
+    transform: scale(0) rotate(-180deg);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) rotate(0);
     opacity: 1;
   }
 }
@@ -140,15 +189,28 @@ button:hover {
   75% { transform: translateX(5px); }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 /* Tutorial board specific styles */
 .tutorial-board {
   width: var(--board-size);
   height: var(--board-size);
-  margin: 1rem auto;
+  margin: 1.5rem auto;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
   border: 2px solid var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
 .tutorial-cell {
@@ -157,4 +219,12 @@ button:hover {
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
+}
+
+.tutorial-cell.region-1 { background-color: var(--region-1-color); }
+.tutorial-cell.region-2 { background-color: var(--region-2-color); }
+.tutorial-cell.region-3 { background-color: var(--region-3-color); }
+
+.tutorial-cell.valid {
+  color: var(--success-color);
 }

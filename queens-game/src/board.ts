@@ -1,8 +1,3 @@
-// Types for better code organization and type safety
-type CellValue = string | null;
-type BoardGrid = CellValue[][];
-type RegionGrid = number[][];
-
 interface BoardPosition {
   row: number;
   col: number;
@@ -17,11 +12,11 @@ export class Board {
   private static readonly BOARD_SIZE = 5;
   private static readonly QUEEN_SYMBOL = '♛';
   
-  private boardState: BoardGrid;
+  private boardState: (string | null)[][];
   private boardElement: HTMLElement;
   
   // Define color regions for the board (1-3 represent different colored areas)
-  private readonly colorRegions: RegionGrid = [
+  private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
     [1, 1, 2, 3, 2],
     [1, 2, 2, 3, 3],
@@ -44,7 +39,7 @@ export class Board {
   /**
    * Creates an empty board grid
    */
-  private createEmptyBoard(): BoardGrid {
+  private createEmptyBoard(): (string | null)[][] {
     return Array(Board.BOARD_SIZE)
       .fill(null)
       .map(() => Array(Board.BOARD_SIZE).fill(null));
@@ -94,8 +89,9 @@ export class Board {
       
       if (validation.isValid) {
         this.placeQueen(position);
+        this.checkWinCondition();
       } else {
-        this.showInvalidPlacement(position);
+        this.showInvalidPlacement(position, validation.reason);
       }
     }
   }
@@ -129,13 +125,32 @@ export class Board {
   }
 
   /**
-   * Shows invalid placement animation
+   * Shows invalid placement animation and optional tooltip
    */
-  private showInvalidPlacement(position: BoardPosition): void {
+  private showInvalidPlacement(position: BoardPosition, reason?: string): void {
     const cell = this.getCellElement(position);
     if (cell) {
       cell.classList.add('invalid');
-      setTimeout(() => cell.classList.remove('invalid'), 500);
+      
+      // Create temporary queen for visual feedback
+      const tempQueen = document.createElement('span');
+      tempQueen.textContent = Board.QUEEN_SYMBOL;
+      tempQueen.classList.add('queen', 'invalid');
+      cell.appendChild(tempQueen);
+
+      // Show reason tooltip if provided
+      if (reason) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = reason;
+        cell.appendChild(tooltip);
+      }
+
+      // Remove temporary elements and invalid class
+      setTimeout(() => {
+        cell.classList.remove('invalid');
+        cell.innerHTML = '';
+      }, 500);
     }
   }
 
@@ -228,5 +243,25 @@ export class Board {
    */
   private getCellElement({ row, col }: BoardPosition): HTMLElement | null {
     return this.boardElement.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+  }
+
+  /**
+   * Checks if the current board state represents a winning condition
+   */
+  private checkWinCondition(): void {
+    let queenCount = 0;
+    for (let row = 0; row < Board.BOARD_SIZE; row++) {
+      for (let col = 0; col < Board.BOARD_SIZE; col++) {
+        if (this.boardState[row][col] !== null) {
+          queenCount++;
+        }
+      }
+    }
+
+    if (queenCount === Board.BOARD_SIZE) {
+      setTimeout(() => {
+        alert('Congratulations! You solved the puzzle!');
+      }, 500);
+    }
   }
 }
