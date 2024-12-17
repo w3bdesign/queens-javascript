@@ -41,4 +41,19 @@ describe('Board', () => {
       expect(cell.textContent).toBe('');
     });
   });
+
+  it('places a queen on right click', async () => {
+    const cell = gameBoard.querySelector('[data-row="0"][data-col="0"]');
+    const rightClick = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      button: 2
+    });
+    rightClick.preventDefault = () => {};
+    
+    cell?.dispatchEvent(rightClick);
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(cell?.querySelector('.queen')).toBeTruthy();
+  });
 });
