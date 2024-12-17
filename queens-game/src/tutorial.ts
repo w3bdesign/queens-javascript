@@ -61,10 +61,10 @@ export class Tutorial {
         {
             board: [
                 [{ queen: true }, { x: true }, { x: true }, { x: true }, { x: true }],
-                [{ x: true }, { x: true }, { queen: true }, {}, {}],
-                [{ x: true }, {}, { x: true }, {}, { queen: true }],
-                [{ x: true }, { queen: true }, { x: true }, {}, {}],
-                [{ x: true }, {}, {}, { queen: true }, {}]
+                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }],
+                [{ x: true }, { x: true }, { x: true }, { x: true }, { queen: true }],
+                [{ x: true }, { queen: true }, { x: true }, { x: true }, { x: true }],
+                [{ x: true }, { x: true }, { queen: true }, { x: true }, { x: true }]
             ],
             text: `Here's everything we just learned:<ol>
                 <li>Your goal is to have exactly one ${Tutorial.QUEEN} in each row, column, and color region.</li>
