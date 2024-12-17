@@ -1,3 +1,5 @@
+![Queens Game Screenshot](screenshot.png)
+
 # Queens Game
 
 A puzzle game where you need to place queens on a 5x5 board following specific rules. The goal is to place exactly one queen in each colored region while ensuring no queen can attack another queen.
@@ -65,5 +67,3 @@ The game uses several design patterns and techniques:
 - **Validation**: Comprehensive rule checking for queen placement
 - **Visual Feedback**: Immediate feedback for player actions
 - **Automated Testing**: Unit tests for game logic
-
-![Queens Game Screenshot](screenshot.png)
