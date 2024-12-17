@@ -65,3 +65,5 @@ The game uses several design patterns and techniques:
 - **Validation**: Comprehensive rule checking for queen placement
 - **Visual Feedback**: Immediate feedback for player actions
 - **Automated Testing**: Unit tests for game logic
+
+![Queens Game Screenshot](screenshot.png)
