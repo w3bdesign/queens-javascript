@@ -19,7 +19,7 @@ export class Tutorial {
     // Define color regions for the board
     private readonly colorRegions: number[][] = [
         [1, 1, 2, 2, 2],
-        [1, 1, 2, 3, 2],
+        [1, 1, 2, 2, 2],
         [1, 2, 2, 3, 3],
         [2, 2, 3, 3, 3],
         [2, 2, 3, 3, 3]
@@ -32,7 +32,7 @@ export class Tutorial {
                     row === 0 && col === 0 ? { queen: true } : {}
                 )
             ),
-            text: `Let's start with a queen in the blue region. Each row can only have one ${Tutorial.QUEEN}.`,
+            text: `Let's start with a queen in the top-left. Each row can only have one ${Tutorial.QUEEN}.`,
             buttonText: "Show me"
         },
         {
@@ -49,7 +49,8 @@ export class Tutorial {
             board: Array(5).fill(null).map((_, row) => 
                 Array(5).fill(null).map((_, col) => 
                     row === 0 && col === 0 ? { queen: true } :
-                    row === 0 || col === 0 || (row === 1 && col === 1) ? { x: true } : {}
+                    row === 0 || col === 0 || 
+                    (row === 1 && col === 1) ? { x: true } : {}
                 )
             ),
             text: `${Tutorial.QUEEN} cannot touch each other diagonally either. Notice how the X's mark all attacking squares.`,
@@ -59,24 +60,41 @@ export class Tutorial {
             board: Array(5).fill(null).map((_, row) => 
                 Array(5).fill(null).map((_, col) => {
                     if (row === 0 && col === 0) return { queen: true };
-                    if (row === 0 || col === 0 || (row === 1 && col === 1)) return { x: true };
+                    if (row === 0 || col === 0 || 
+                        (row === 1 && col === 1)) return { x: true };
                     return {};
                 })
             ),
-            text: `Each color region must also have exactly one ${Tutorial.QUEEN}. Looking at the blue region, we can only place one more queen here.`,
+            text: `Each color region must have exactly one ${Tutorial.QUEEN}. Since we have a queen in the blue region, we need to place queens in the green and pink regions.`,
             buttonText: "Show me"
         },
         {
             board: Array(5).fill(null).map((_, row) => 
                 Array(5).fill(null).map((_, col) => {
-                    if (row === 0 && col === 0) return { queen: true };
-                    if (row === 1 && col === 3) return { queen: true };
-                    if (row <= 1 || col === 0 || col === 3 || 
-                        (row === 2 && col <= 1) || (row === 2 && col === 2)) return { x: true };
+                    if (row === 0 && col === 0) return { queen: true }; // Blue region
+                    if (row === 2 && col === 4) return { queen: true }; // Green region
+                    if (row === 0 || col === 0 || col === 4 ||
+                        (row === 1 && col === 1) ||
+                        (row === 1 && col === 3) ||
+                        (row === 3 && col === 3)) return { x: true };
                     return {};
                 })
             ),
-            text: `After placing a queen, mark all squares it attacks with X. This helps find safe squares for the next queen.`,
+            text: `After placing each queen, mark all squares it attacks with X. This helps find safe squares for the next queen.`,
+            buttonText: "Show me"
+        },
+        {
+            board: Array(5).fill(null).map((_, row) => 
+                Array(5).fill(null).map((_, col) => {
+                    // Place exactly one queen in each color region
+                    if (row === 0 && col === 0) return { queen: true }; // Blue (region 1)
+                    if (row === 1 && col === 2) return { queen: true }; // Green (region 2)
+                    if (row === 2 && col === 4) return { queen: true }; // Pink (region 3)
+                    // Mark all attacked squares with X
+                    return { x: true };
+                })
+            ),
+            text: `Here's a complete solution with exactly one ${Tutorial.QUEEN} in each color region. No queens are attacking each other - they don't share rows, columns, or diagonals.`,
             buttonText: "Got it!"
         }
     ];

@@ -8,20 +8,25 @@ interface BoardValidation {
   reason?: string;
 }
 
+type CellState = null | 'X' | '♛';
+
 export class Board {
   private static readonly BOARD_SIZE = 5;
   private static readonly QUEEN_SYMBOL = '♛';
-
-  private boardState: (string | null)[][];
+  private static readonly X_SYMBOL = 'X';
+  private static readonly DOUBLE_CLICK_DELAY = 300; // ms
+  
+  private boardState: CellState[][];
   private boardElement: HTMLElement;
-
-  // Define color regions for the board (1-3 represent different colored areas)
+  private lastClickTime: number = 0;
+  private lastClickPosition: BoardPosition | null = null;
+  
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
-    [1, 1, 2, 3, 2],
+    [1, 1, 2, 2, 2],
     [1, 2, 2, 3, 3],
     [2, 2, 3, 3, 3],
-    [2, 2, 3, 3, 3],
+    [2, 2, 3, 3, 3]
   ];
 
   constructor() {
@@ -39,10 +44,39 @@ export class Board {
   /**
    * Creates an empty board grid
    */
-  private createEmptyBoard(): (string | null)[][] {
-    return Array(Board.BOARD_SIZE)
+  private createEmptyBoard(): CellState[][] {
+    const board: CellState[][] = Array(Board.BOARD_SIZE)
       .fill(null)
       .map(() => Array(Board.BOARD_SIZE).fill(null));
+    return board;
+  }
+
+  /**
+   * Places an X marker on the board at the specified position
+   */
+  private placeX(position: BoardPosition): void {
+    const { row, col } = position;
+    this.boardState[row][col] = Board.X_SYMBOL;
+
+    const cell = this.getCellElement(position);
+    if (cell) {
+      cell.textContent = Board.X_SYMBOL;
+      cell.classList.add('marked');
+    }
+  }
+
+  /**
+   * Removes an X marker from the specified position
+   */
+  private removeX(position: BoardPosition): void {
+    const { row, col } = position;
+    this.boardState[row][col] = null;
+
+    const cell = this.getCellElement(position);
+    if (cell) {
+      cell.textContent = '';
+      cell.classList.remove('marked');
+    }
   }
 
   /**
@@ -79,21 +113,71 @@ export class Board {
    * Handles cell click events
    */
   private handleCellClick(position: BoardPosition): void {
+    const currentTime = Date.now();
     const { row, col } = position;
-    const hasQueen = this.boardState[row][col] !== null;
 
-    if (hasQueen) {
-      this.removeQueen(position);
+    // Check if this is a double click on the same cell
+    const isDoubleClick =
+      this.lastClickPosition &&
+      this.lastClickPosition.row === row &&
+      this.lastClickPosition.col === col &&
+      currentTime - this.lastClickTime < Board.DOUBLE_CLICK_DELAY;
+
+    if (isDoubleClick) {
+      // Double click - try to place queen
+      if (this.boardState[row][col] !== Board.QUEEN_SYMBOL) {
+        const validation = this.validateQueenPlacement(position);
+        if (validation.isValid) {
+          this.placeQueen(position);
+          this.checkWinCondition();
+        } else {
+          this.showInvalidPlacement(position, validation.reason);
+        }
+      }
     } else {
-      const validation = this.validateQueenPlacement(position);
-
-      if (validation.isValid) {
-        this.placeQueen(position);
-        this.checkWinCondition();
-      } else {
-        this.showInvalidPlacement(position, validation.reason);
+      // Single click - toggle X mark only if it's a valid X position
+      if (this.boardState[row][col] === null) {
+        if (this.isValidXPlacement(position)) {
+          this.placeX(position);
+        }
+      } else if (this.boardState[row][col] === Board.X_SYMBOL) {
+        this.removeX(position);
       }
     }
+
+    this.lastClickTime = currentTime;
+    this.lastClickPosition = position;
+  }
+
+  private isValidXPlacement(position: BoardPosition): boolean {
+    const { row, col } = position;
+
+    // Can't place X where a queen is
+    if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+      return false;
+    }
+
+    // Check if this position is attacked by any queen
+    for (let r = 0; r < Board.BOARD_SIZE; r++) {
+      for (let c = 0; c < Board.BOARD_SIZE; c++) {
+        if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
+          // Same row or column
+          if (r === row || c === col) {
+            return true;
+          }
+          // Diagonal
+          if (Math.abs(row - r) === Math.abs(col - c)) {
+            return true;
+          }
+          // Same color region
+          if (this.colorRegions[r][c] === this.colorRegions[row][col]) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -158,6 +242,16 @@ export class Board {
    * Validates if a queen can be placed at the specified position
    */
   private validateQueenPlacement(position: BoardPosition): BoardValidation {
+    const { row, col } = position;
+
+    // Can't place queen on X
+    if (this.boardState[row][col] === Board.X_SYMBOL) {
+      return {
+        isValid: false,
+        reason: 'Cannot place queen on an X marker'
+      };
+    }
+
     const rowCheck = this.validateRow(position);
     if (!rowCheck.isValid) return rowCheck;
 
@@ -177,7 +271,7 @@ export class Board {
    * Validates row placement
    */
   private validateRow({ row }: BoardPosition): BoardValidation {
-    const hasQueen = this.boardState[row].some((cell) => cell !== null);
+    const hasQueen = this.boardState[row].some((cell) => cell === Board.QUEEN_SYMBOL);
     return {
       isValid: !hasQueen,
       reason: hasQueen ? 'Row already contains a queen' : undefined,
@@ -188,7 +282,7 @@ export class Board {
    * Validates column placement
    */
   private validateColumn({ col }: BoardPosition): BoardValidation {
-    const hasQueen = this.boardState.some((row) => row[col] !== null);
+    const hasQueen = this.boardState.some((row) => row[col] === Board.QUEEN_SYMBOL);
     return {
       isValid: !hasQueen,
       reason: hasQueen ? 'Column already contains a queen' : undefined,
@@ -204,7 +298,7 @@ export class Board {
 
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
-        if (this.colorRegions[r][c] === region && this.boardState[r][c] !== null) {
+        if (this.colorRegions[r][c] === region && this.boardState[r][c] === Board.QUEEN_SYMBOL) {
           return {
             isValid: false,
             reason: 'Color region already contains a queen',
@@ -224,7 +318,7 @@ export class Board {
 
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
-        if (this.boardState[r][c] !== null) {
+        if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
           if (Math.abs(row - r) === Math.abs(col - c)) {
             return {
               isValid: false,
@@ -252,7 +346,7 @@ export class Board {
     let queenCount = 0;
     for (let row = 0; row < Board.BOARD_SIZE; row++) {
       for (let col = 0; col < Board.BOARD_SIZE; col++) {
-        if (this.boardState[row][col] !== null) {
+        if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
           queenCount++;
         }
       }
