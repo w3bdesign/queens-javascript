@@ -1,24 +1,34 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import './style.css';
+import { Board } from './board';
+import { Tutorial } from './tutorial';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        // Initialize game components
+        new Board(); // We don't need to store the instance since we're not using it directly
+        const tutorial = new Tutorial();
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+        // Get DOM elements with type assertions and null checks
+        const tutorialBtn = document.getElementById('tutorial-btn');
+        const closeTutorialBtn = document.getElementById('close-tutorial');
+        const tutorialModal = document.getElementById('tutorial-modal');
+
+        if (!tutorialBtn || !closeTutorialBtn || !tutorialModal) {
+            throw new Error('Required DOM elements not found');
+        }
+
+        // Setup event listeners
+        tutorialBtn.addEventListener('click', () => {
+            tutorialModal.classList.remove('hidden');
+            tutorial.show();
+        });
+
+        closeTutorialBtn.addEventListener('click', () => {
+            tutorialModal.classList.add('hidden');
+            tutorial.hide();
+        });
+
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+    }
+});

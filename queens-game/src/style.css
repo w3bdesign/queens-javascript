@@ -1,96 +1,160 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --cell-size: 60px;
+  --board-size: calc(var(--cell-size) * 5);
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --highlight-color: #3498db;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
+  font-family: 'Arial', sans-serif;
   display: flex;
-  place-items: center;
-  min-width: 320px;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
+  background-color: #ecf0f1;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.header {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+h1 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
 }
 
-.card {
-  padding: 2em;
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(5, var(--cell-size));
+  grid-template-rows: repeat(5, var(--cell-size));
+  border: 2px solid var(--primary-color);
+  position: relative;
 }
 
-.read-the-docs {
-  color: #888;
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid var(--secondary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background-color 0.3s ease;
+  position: relative;
+}
+
+.cell:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.cell.region-1 { background-color: #fff; }
+.cell.region-2 { background-color: #f0f0f0; }
+.cell.region-3 { background-color: #e0e0e0; }
+
+.queen {
+  font-size: 2.5rem;
+  animation: place-queen 0.3s ease-out;
+}
+
+.invalid {
+  animation: shake 0.5s ease-in-out;
+  color: var(--error-color);
+}
+
+.valid {
+  color: var(--success-color);
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  text-align: center;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  padding: 0.5rem 1rem;
+  background-color: var(--highlight-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: background-color 0.3s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+button:hover {
+  background-color: #2980b9;
+}
+
+/* Animations */
+@keyframes place-queen {
+  from {
+    transform: scale(0);
+    opacity: 0;
   }
-  a:hover {
-    color: #747bff;
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Tutorial board specific styles */
+.tutorial-board {
+  width: var(--board-size);
+  height: var(--board-size);
+  margin: 1rem auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  border: 2px solid var(--primary-color);
+}
+
+.tutorial-cell {
+  border: 1px solid var(--secondary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
 }
