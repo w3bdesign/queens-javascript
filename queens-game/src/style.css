@@ -9,6 +9,7 @@
   --region-1-color: #a8c6df;  /* Light blue */
   --region-2-color: #b5d5a7;  /* Light green */
   --region-3-color: #d7b7a3;  /* Light brown */
+  --queen-size: 2.6rem;  /* Define queen size as a variable */
 }
 
 * {
@@ -78,9 +79,17 @@ h1 {
 .cell.region-3 { background-color: var(--region-3-color); }
 
 .queen {
-  font-size: 2.5rem;
+  font-size: var(--queen-size);
   animation: place-queen 0.3s ease-out;
   user-select: none;
+  color: #000;
+  text-shadow: none;
+}
+
+.x-mark {
+  font-size: 1.5rem;
+  color: #666;
+  opacity: 0.8;
 }
 
 .invalid {
@@ -93,8 +102,7 @@ h1 {
 }
 
 .valid .queen {
-  color: var(--success-color);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #000;
 }
 
 /* Tooltip styles */
@@ -218,7 +226,8 @@ button:active {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: var(--queen-size);
+  color: #000;
 }
 
 .tutorial-cell.region-1 { background-color: var(--region-1-color); }
@@ -226,5 +235,5 @@ button:active {
 .tutorial-cell.region-3 { background-color: var(--region-3-color); }
 
 .tutorial-cell.valid {
-  color: var(--success-color);
+  color: #000;
 }
