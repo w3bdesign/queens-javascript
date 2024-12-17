@@ -14,12 +14,8 @@ export class Board {
   private static readonly BOARD_SIZE = 5;
   private static readonly QUEEN_SYMBOL = '♛';
   private static readonly X_SYMBOL = 'X';
-  private static readonly DOUBLE_CLICK_DELAY = 300; // ms
-  
   private boardState: CellState[][];
   private boardElement: HTMLElement;
-  private lastClickTime: number = 0;
-  private lastClickPosition: BoardPosition | null = null;
   
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
@@ -103,52 +99,70 @@ export class Board {
     cell.dataset.row = row.toString();
     cell.dataset.col = col.toString();
 
-    // Add click handler
-    cell.addEventListener('click', () => this.handleCellClick(position));
+    // Add left click handler for X markers
+    cell.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handleLeftClick(position);
+    });
+
+    // Add right click handler for queens
+    cell.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.handleRightClick(position);
+    });
 
     return cell;
+}
+
+/**
+ * Handles left click events (X markers)
+ */
+private handleLeftClick(position: BoardPosition): void {
+  const { row, col } = position;
+
+  if (this.boardState[row][col] === null) {
+    // Empty cell - try to place X
+    if (this.isValidXPlacement(position)) {
+      this.placeX(position);
+    } else {
+      // Show feedback for why X can't be placed here
+      this.showInvalidPlacement(position, "This square is not attacked by any queen");
+    }
+  } else if (this.boardState[row][col] === Board.X_SYMBOL) {
+    // X exists - remove it
+    this.removeX(position);
+  } else if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+    // Show feedback that queens are placed with right click
+    this.showInvalidPlacement(position, "Right click to remove queens");
+  }
+}
+
+/**
+ * Handles right click events (queens)
+ */
+private handleRightClick(position: BoardPosition): void {
+  const { row, col } = position;
+
+  if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
+    // Remove existing queen
+    this.removeQueen(position);
+  } else {
+    // Try to place new queen
+    const validation = this.validateQueenPlacement(position);
+    if (validation.isValid) {
+      this.placeQueen(position);
+      this.checkWinCondition();
+    } else {
+      this.showInvalidPlacement(position, validation.reason);
+    }
+  }
+
   }
 
   /**
-   * Handles cell click events
+   * Checks if a position can have an X placed on it.
+   * A position is valid for X if it's attacked by any queen (same row, column, diagonal, or color region).
    */
-  private handleCellClick(position: BoardPosition): void {
-    const currentTime = Date.now();
-    const { row, col } = position;
-
-    // Check if this is a double click on the same cell
-    const isDoubleClick =
-      this.lastClickPosition &&
-      this.lastClickPosition.row === row &&
-      this.lastClickPosition.col === col &&
-      currentTime - this.lastClickTime < Board.DOUBLE_CLICK_DELAY;
-
-    if (isDoubleClick) {
-      // Double click - try to place queen
-      if (this.boardState[row][col] !== Board.QUEEN_SYMBOL) {
-        const validation = this.validateQueenPlacement(position);
-        if (validation.isValid) {
-          this.placeQueen(position);
-          this.checkWinCondition();
-        } else {
-          this.showInvalidPlacement(position, validation.reason);
-        }
-      }
-    } else {
-      // Single click - toggle X mark only if it's a valid X position
-      if (this.boardState[row][col] === null) {
-        if (this.isValidXPlacement(position)) {
-          this.placeX(position);
-        }
-      } else if (this.boardState[row][col] === Board.X_SYMBOL) {
-        this.removeX(position);
-      }
-    }
-
-    this.lastClickTime = currentTime;
-    this.lastClickPosition = position;
-  }
-
   private isValidXPlacement(position: BoardPosition): boolean {
     const { row, col } = position;
 
@@ -161,23 +175,20 @@ export class Board {
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
         if (this.boardState[r][c] === Board.QUEEN_SYMBOL) {
-          // Same row or column
-          if (r === row || c === col) {
-            return true;
-          }
-          // Diagonal
-          if (Math.abs(row - r) === Math.abs(col - c)) {
-            return true;
-          }
-          // Same color region
-          if (this.colorRegions[r][c] === this.colorRegions[row][col]) {
-            return true;
+          // Position is attacked if:
+          const sameRow = r === row;              // Queen in same row
+          const sameCol = c === col;              // Queen in same column
+          const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);  // Queen on diagonal
+          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];  // Queen in same region
+
+          if (sameRow || sameCol || sameDiagonal || sameRegion) {
+            return true;  // Position is attacked, can place X
           }
         }
       }
     }
 
-    return false;
+    return false;  // Position is not attacked by any queen
   }
 
   /**
