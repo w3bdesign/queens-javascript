@@ -352,7 +352,11 @@ export class Board {
       }
     }
 
-    if (queenCount === Board.BOARD_SIZE) {
+    // Get number of unique regions
+    const uniqueRegions = new Set(this.colorRegions.flat()).size;
+    
+    // Win when we have exactly one queen in each region
+    if (queenCount === uniqueRegions) {
       setTimeout(() => {
         alert('Congratulations! You solved the puzzle!');
       }, 500);
