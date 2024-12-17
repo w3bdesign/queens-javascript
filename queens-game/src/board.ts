@@ -16,6 +16,7 @@ export class Board {
   private static readonly X_SYMBOL = 'X';
   private boardState: CellState[][];
   private boardElement: HTMLElement;
+  private autoXMode: boolean = true;
   
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
@@ -33,6 +34,15 @@ export class Board {
     const element = document.getElementById('game-board');
     if (!element) throw new Error('Game board element not found');
     this.boardElement = element;
+
+    // Set up auto-X toggle listener
+    const toggle = document.getElementById('auto-x-toggle') as HTMLInputElement;
+    if (toggle) {
+      this.autoXMode = toggle.checked;
+      toggle.addEventListener('change', () => {
+        this.autoXMode = toggle.checked;
+      });
+    }
 
     this.initializeBoard();
   }
@@ -202,6 +212,34 @@ private handleRightClick(position: BoardPosition): void {
     if (cell) {
       cell.innerHTML = `<span class="queen">${Board.QUEEN_SYMBOL}</span>`;
       cell.classList.add('valid');
+    }
+
+    // Automatically mark attacked squares if auto-X mode is enabled
+    if (this.autoXMode) {
+      this.markAttackedSquares(position);
+    }
+  }
+
+  /**
+   * Automatically marks all squares attacked by a queen with X
+   */
+  private markAttackedSquares(queenPosition: BoardPosition): void {
+    const { row, col } = queenPosition;
+
+    // Check each cell on the board
+    for (let r = 0; r < Board.BOARD_SIZE; r++) {
+      for (let c = 0; c < Board.BOARD_SIZE; c++) {
+        // Skip the queen's position and already marked positions
+        if ((r === row && c === col) || this.boardState[r][c] !== null) {
+          continue;
+        }
+
+        const position = { row: r, col: c };
+        // If the position can have an X placed, place it
+        if (this.isValidXPlacement(position)) {
+          this.placeX(position);
+        }
+      }
     }
   }
 

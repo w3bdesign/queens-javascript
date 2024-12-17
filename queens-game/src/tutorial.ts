@@ -60,7 +60,7 @@ export class Tutorial {
                     (row === 1 && col === 1) ? { x: true } : {}
                 )
             ),
-            text: `${Tutorial.QUEEN} cannot touch each other diagonally either. Notice how the X's mark all attacking squares.`,
+            text: `${Tutorial.QUEEN}s cannot touch diagonally either. Left-click to mark these squares with ${Tutorial.X}. Right-click to place queens.`,
             buttonText: "Show me"
         },
         {
@@ -72,7 +72,7 @@ export class Tutorial {
                     return {};
                 })
             ),
-            text: `Each color region must have exactly one ${Tutorial.QUEEN}. Since we have a queen in the blue region, we need to place queens in the green and pink regions.`,
+            text: `Each color region (blue, green, pink) must have exactly one ${Tutorial.QUEEN}. Right-click to place queens in the remaining regions.`,
             buttonText: "Show me"
         },
         {
@@ -87,7 +87,7 @@ export class Tutorial {
                     return {};
                 })
             ),
-            text: `After placing each queen, mark all squares it attacks with X. This helps find safe squares for the next queen.`,
+            text: `After placing each queen with right-click, use left-click to mark all attacked squares with ${Tutorial.X}. This helps find safe squares for the next queen.`,
             buttonText: "Show me"
         },
         {

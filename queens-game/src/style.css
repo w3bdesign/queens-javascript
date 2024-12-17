@@ -268,3 +268,57 @@ button:active {
 .tutorial-cell.valid {
   color: #000;
 }
+
+/* Game controls */
+.game-controls {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 12px;
+  margin-right: 10px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background-color: var(--highlight-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-label {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+}
