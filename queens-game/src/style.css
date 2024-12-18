@@ -25,6 +25,7 @@ body {
   align-items: center;
   min-height: 100vh;
   background-color: #ecf0f1;
+  padding: 1rem; /* Ensure responsiveness on mobile devices */
 }
 
 .game-container {
@@ -33,6 +34,8 @@ body {
   align-items: center;
   gap: 2rem;
   padding: 2rem;
+  max-width: 100%; /* Ensure responsiveness on mobile devices */
+  overflow-x: auto; /* Ensure responsiveness on mobile devices */
 }
 
 .header {
@@ -66,6 +69,7 @@ h1 {
   font-size: 2rem;
   transition: all 0.3s ease;
   position: relative;
+  touch-action: manipulation; /* Ensure touch feedback on mobile devices */
 }
 
 .cell:hover {
