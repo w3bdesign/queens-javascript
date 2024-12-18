@@ -205,7 +205,7 @@ export class Board {
   /**
    * Handles touch start events for mobile devices
    */
-  private handleTouchStart(event: TouchEvent, position: BoardPosition): void {
+  private handleTouchStart(event: TouchEvent): void {
     const touch = event.touches[0];
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
 
