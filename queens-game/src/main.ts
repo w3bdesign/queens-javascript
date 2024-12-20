@@ -1,6 +1,6 @@
-import './style.css';
-import { Board } from './board';
-import { Tutorial } from './tutorial';
+import './styles/style.css';
+import { Board } from './core/board';
+import { Tutorial } from './components/tutorial';
 
 window.addEventListener('load', (): void => {
   try {

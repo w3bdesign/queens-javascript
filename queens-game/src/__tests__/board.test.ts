@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Board } from '../board';
+import { Board } from '../core/board';
 
 declare global {
   interface Window {
