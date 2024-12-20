@@ -101,9 +101,21 @@ h1 {
 }
 
 .cell:hover {
-  background-color: rgba(52, 152, 219, 0.1);
-  transform: scale(1.02);
+  background-color: rgba(52, 152, 219, 0.25);
   z-index: 1;
+  transition: background-color 0.2s ease;
+}
+
+.cell.region-1:hover {
+  background-color: rgba(168, 198, 223, 0.8);
+}
+
+.cell.region-2:hover {
+  background-color: rgba(181, 213, 167, 0.8);
+}
+
+.cell.region-3:hover {
+  background-color: rgba(215, 183, 163, 0.8);
 }
 
 .cell.region-1 {
