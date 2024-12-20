@@ -126,9 +126,11 @@ export class Board {
     // Add touch event listeners for mobile devices
     let touchTimeout: number;
     let isTouchMoved = false;
+    let touchStartTime = 0;
 
     cell.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      touchStartTime = Date.now();
       isTouchMoved = false;
       
       // Clear any existing timeout
@@ -143,15 +145,14 @@ export class Board {
       touchTimeout = window.setTimeout(() => {
         if (!isTouchMoved) {
           cell.classList.remove('long-press');
-          this.handleRightClick(position);
+          this.handleRightClick(position); // This will trigger placeQueen and auto-X
         }
       }, 500);
-
-      this.handleTouchStart(e, position);
     });
 
     cell.addEventListener('touchmove', () => {
       isTouchMoved = true;
+      cell.classList.remove('long-press');
     });
 
     cell.addEventListener('touchend', () => {
@@ -159,6 +160,11 @@ export class Board {
         window.clearTimeout(touchTimeout);
       }
       cell.classList.remove('long-press');
+
+      // Handle tap for X markers
+      if (!isTouchMoved && (Date.now() - touchStartTime) < 500) {
+        this.handleLeftClick(position);
+      }
     });
 
     cell.addEventListener('touchcancel', () => {
@@ -242,16 +248,6 @@ export class Board {
     }
   }
 
-  /**
-   * Handles touch start events for mobile devices
-   * Single tap: Place/remove X
-   * Long press: Place/remove queen
-   */
-  private handleTouchStart(event: TouchEvent, position: BoardPosition): void {
-    if (event.touches.length === 1) {
-      this.handleLeftClick(position);
-    }
-  }
 
   /**
    * Places a queen on the board at the specified position
