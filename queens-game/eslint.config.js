@@ -20,6 +20,12 @@ export default [
         setTimeout: true,
         clearTimeout: true,
         HTMLElement: true,
+        HTMLInputElement: true,
+        HTMLSelectElement: true,
+        MouseEvent: true,
+        Event: true,
+        Document: true,
+        global: true,
       },
     },
     plugins: {
@@ -30,7 +36,7 @@ export default [
       ...eslint.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/explicit-function-return-type': 'warn',
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-member-accessibility': ['error', {
         accessibility: 'explicit',

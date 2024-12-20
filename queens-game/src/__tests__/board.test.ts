@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Board } from '../board';
 
+declare global {
+  interface Window {
+    MouseEvent: typeof MouseEvent;
+  }
+}
+
 describe('Board', () => {
   let gameBoard: HTMLElement;
 
@@ -37,22 +43,22 @@ describe('Board', () => {
 
   it('initializes with empty cells', () => {
     const cells = gameBoard.querySelectorAll('.cell');
-    cells.forEach(cell => {
+    cells.forEach((cell) => {
       expect(cell.textContent).toBe('');
     });
   });
 
   it('places a queen on right click', async () => {
     const cell = gameBoard.querySelector('[data-row="0"][data-col="0"]');
-    const rightClick = new MouseEvent('contextmenu', {
+    const rightClick = new window.MouseEvent('contextmenu', {
       bubbles: true,
       cancelable: true,
-      button: 2
+      button: 2,
     });
-    rightClick.preventDefault = () => {};
-    
+    rightClick.preventDefault = (): void => undefined;
+
     cell?.dispatchEvent(rightClick);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(cell?.querySelector('.queen')).toBeTruthy();
   });

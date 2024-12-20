@@ -6,9 +6,9 @@
   --highlight-color: #3498db;
   --error-color: #e74c3c;
   --success-color: #2ecc71;
-  --region-1-color: #a8c6df;  /* Light blue */
-  --region-2-color: #b5d5a7;  /* Light green */
-  --region-3-color: #d7b7a3;  /* Light brown */
+  --region-1-color: #a8c6df; /* Light blue */
+  --region-2-color: #b5d5a7; /* Light green */
+  --region-3-color: #d7b7a3; /* Light brown */
   --queen-size: 2.6rem;
 }
 
@@ -89,9 +89,15 @@ h1 {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.95); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .cell:hover {
@@ -100,9 +106,15 @@ h1 {
   z-index: 1;
 }
 
-.cell.region-1 { background-color: var(--region-1-color); }
-.cell.region-2 { background-color: var(--region-2-color); }
-.cell.region-3 { background-color: var(--region-3-color); }
+.cell.region-1 {
+  background-color: var(--region-1-color);
+}
+.cell.region-2 {
+  background-color: var(--region-2-color);
+}
+.cell.region-3 {
+  background-color: var(--region-3-color);
+}
 
 .queen {
   font-size: var(--queen-size);
@@ -233,7 +245,7 @@ h1 {
 }
 
 .tutorial-text .controls-list li::before {
-  content: "•";
+  content: '•';
   position: absolute;
   left: 0.5rem;
   color: var(--highlight-color);
@@ -306,9 +318,16 @@ button:active {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 @keyframes fadeIn {
@@ -352,9 +371,15 @@ button:active {
   opacity: 0.8;
 }
 
-.tutorial-cell.region-1 { background-color: var(--region-1-color); }
-.tutorial-cell.region-2 { background-color: var(--region-2-color); }
-.tutorial-cell.region-3 { background-color: var(--region-3-color); }
+.tutorial-cell.region-1 {
+  background-color: var(--region-1-color);
+}
+.tutorial-cell.region-2 {
+  background-color: var(--region-2-color);
+}
+.tutorial-cell.region-3 {
+  background-color: var(--region-3-color);
+}
 
 .tutorial-cell.valid {
   color: #000;
@@ -393,10 +418,31 @@ button:active {
 
 /* Game controls */
 .game-controls {
-  margin-top: 1rem;
+  margin: 1rem 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
+}
+
+.puzzle-select {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.puzzle-select:hover {
+  border-color: #007bff;
+}
+
+.puzzle-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 /* Toggle switch */
@@ -421,7 +467,7 @@ button:active {
 }
 
 .slider:before {
-  content: "";
+  content: '';
   position: absolute;
   width: 20px;
   height: 20px;
