@@ -10,7 +10,22 @@ interface BoardValidation {
   reason?: string;
 }
 
+interface PuzzleData {
+  number: number;
+  queens: BoardPosition[];
+  board: string;
+  regions: number[][];
+}
+
 type CellState = null | 'X' | '♛';
+
+declare global {
+  interface Window {
+    HTMLElement: typeof HTMLElement;
+    HTMLInputElement: typeof HTMLInputElement;
+    HTMLSelectElement: typeof HTMLSelectElement;
+  }
+}
 
 export class Board {
   private static readonly BOARD_SIZE = 5;
@@ -18,8 +33,7 @@ export class Board {
   private static readonly X_SYMBOL = 'X';
   private boardState: CellState[][];
   private boardElement: HTMLElement;
-  private autoXMode: boolean = true;
-  private solution: BoardPosition[] | null = null;
+  private autoXMode = true;
   private currentRegions: number[][] = [
     [1, 1, 2, 2, 2],
     [1, 1, 2, 2, 2],
@@ -52,13 +66,13 @@ export class Board {
       selector.addEventListener('change', () => {
         const puzzleNumber = parseInt(selector.value);
         if (!isNaN(puzzleNumber)) {
-          this.loadPuzzle(puzzleNumber);
+          void this.loadPuzzle(puzzleNumber);
         }
       });
     }
 
     this.initializeBoard();
-    this.loadPuzzles();
+    void this.loadPuzzles();
   }
 
   /**
@@ -66,13 +80,13 @@ export class Board {
    */
   private async loadPuzzles(): Promise<void> {
     try {
-      const response = await fetch('/puzzles/all-puzzles.json');
-      const data = await response.json();
-      
+      const response = await window.fetch('/puzzles/all-puzzles.json');
+      const data: { puzzles: PuzzleData[] } = await response.json();
+
       // Populate puzzle selector
       const selector = document.getElementById('puzzle-select') as HTMLSelectElement;
       if (selector) {
-        data.puzzles.forEach((puzzle: any) => {
+        data.puzzles.forEach((puzzle) => {
           const option = document.createElement('option');
           option.value = puzzle.number.toString();
           option.textContent = `Puzzle ${puzzle.number}`;
@@ -89,22 +103,21 @@ export class Board {
    */
   private async loadPuzzle(puzzleNumber: number): Promise<void> {
     try {
-      const response = await fetch('/puzzles/all-puzzles.json');
-      const data = await response.json();
-      const puzzle = data.puzzles.find((p: any) => p.number === puzzleNumber);
-      
+      const response = await window.fetch('/puzzles/all-puzzles.json');
+      const data: { puzzles: PuzzleData[] } = await response.json();
+      const puzzle = data.puzzles.find((p) => p.number === puzzleNumber);
+
       if (puzzle) {
         // Reset board
         this.boardState = this.createEmptyBoard();
         this.boardElement.innerHTML = '';
-        
-        // Update solution and regions
-        this.solution = puzzle.queens;
+
+        // Update regions
         this.currentRegions = puzzle.regions;
-        
+
         // Reinitialize board with new regions
         this.initializeBoard();
-        
+
         console.log('Puzzle loaded successfully:', puzzle);
       }
     } catch (error) {
@@ -200,7 +213,7 @@ export class Board {
       e.preventDefault();
       touchStartTime = Date.now();
       isTouchMoved = false;
-      
+
       // Clear any existing timeout
       if (touchTimeout) {
         window.clearTimeout(touchTimeout);
@@ -230,7 +243,7 @@ export class Board {
       cell.classList.remove('long-press');
 
       // Handle tap for X markers
-      if (!isTouchMoved && (Date.now() - touchStartTime) < 500) {
+      if (!isTouchMoved && Date.now() - touchStartTime < 500) {
         this.handleLeftClick(position);
       }
     });
@@ -587,7 +600,7 @@ export class Board {
       colors: ['#f1c40f', '#e74c3c', '#2ecc71', '#3498db'],
     };
 
-    const fire = (particleRatio: number, opts: confetti.Options) => {
+    const fire = (particleRatio: number, opts: confetti.Options): void => {
       confetti({
         ...defaults,
         ...opts,

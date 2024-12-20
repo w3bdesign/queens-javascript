@@ -1,20 +1,28 @@
-import { vi, afterEach, beforeAll } from 'vitest';
+import { vi } from 'vitest';
 
-// Mock canvas-confetti
-vi.mock('canvas-confetti', () => ({
-  default: vi.fn()
-}));
+declare global {
+  interface Window {
+    Event: typeof Event;
+  }
+  var global: typeof globalThis;
+}
 
-// Mock preventDefault and stopPropagation on Event prototype
-beforeAll(() => {
-  // @ts-ignore - Modifying Event prototype for testing
-  Event.prototype.preventDefault = vi.fn();
-  // @ts-ignore - Modifying Event prototype for testing
-  Event.prototype.stopPropagation = vi.fn();
-});
+// Mock DOM APIs
+const mockDocument = {
+  createElement: vi.fn(() => ({
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+  createEvent: vi.fn(() => new window.Event('event')),
+  dispatchEvent: vi.fn(() => new window.Event('event')),
+  getElementById: vi.fn(),
+  querySelector: vi.fn(),
+  querySelectorAll: vi.fn(),
+  body: {
+    appendChild: vi.fn(),
+    innerHTML: '',
+  },
+};
 
-// Clean up the DOM after each test
-afterEach(() => {
-  document.body.innerHTML = '';
-  vi.clearAllMocks();
-});
+global.document = mockDocument as unknown as Document;
