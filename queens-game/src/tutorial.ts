@@ -30,7 +30,30 @@ export class Tutorial {
             board: Array(5).fill(null).map((_) =>
                 Array(5).fill(null).map(() => ({}))
             ),
-            text: `Controls:\n• Mouse: Right-click to place/remove ${Tutorial.QUEEN}s, left-click to mark/unmark squares with ${Tutorial.X}\n• Mobile: Tap to mark/unmark ${Tutorial.X}s (manual mode), long-press to place/remove ${Tutorial.QUEEN}s\n• Auto-X mode: When enabled, ${Tutorial.X}s are automatically placed on squares attacked by queens\n\nLet's begin!`,
+            text: `
+              <div class="controls-section">
+                <div class="controls-title">Mouse Controls</div>
+                <ul class="controls-list">
+                  <li>Right-click to place/remove ${Tutorial.QUEEN}s</li>
+                  <li>Left-click to mark/unmark squares with ${Tutorial.X}</li>
+                </ul>
+              </div>
+
+              <div class="controls-section">
+                <div class="controls-title">Mobile Controls</div>
+                <ul class="controls-list">
+                  <li>Tap to mark/unmark squares with ${Tutorial.X}</li>
+                  <li>Long-press to place/remove ${Tutorial.QUEEN}s</li>
+                </ul>
+              </div>
+
+              <div class="mode-section">
+                <div class="controls-title">Auto-X Mode</div>
+                <div>${Tutorial.X}s are automatically placed on squares attacked by queens</div>
+              </div>
+
+              <div class="lets-begin">Let's begin!</div>
+            `,
             buttonText: "Got it"
         },
         {
