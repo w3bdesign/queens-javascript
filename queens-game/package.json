@@ -2,7 +2,6 @@
   "name": "queens-game",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -14,9 +13,11 @@
     "type-check": "tsc --noEmit",
     "validate": "pnpm run lint && pnpm run format:check && pnpm run type-check",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "generate-puzzles": "ts-node -P scripts/tsconfig.json scripts/puzzle-generator.ts > public/puzzles/all-puzzles.json"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "@testing-library/dom": "^10.4.0",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
