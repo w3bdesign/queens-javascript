@@ -69,7 +69,29 @@ h1 {
   font-size: 2rem;
   transition: all 0.3s ease;
   position: relative;
-  touch-action: manipulation; /* Ensure touch feedback on mobile devices */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 44px; /* Minimum tap target size */
+  min-height: 44px;
+}
+
+@media (hover: none) {
+  .cell:active {
+    background-color: rgba(52, 152, 219, 0.2);
+  }
+
+  .cell.long-press {
+    background-color: rgba(52, 152, 219, 0.4);
+    animation: pulse 0.5s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
 }
 
 .cell:hover {
@@ -125,6 +147,22 @@ h1 {
   z-index: 100;
   pointer-events: none;
   animation: fadeIn 0.2s ease-out;
+  max-width: 200px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .tooltip {
+    font-size: 0.75rem;
+    padding: 0.35rem;
+    max-width: 150px;
+    white-space: normal;
+  }
+
+  :root {
+    --cell-size: 50px;
+    --queen-size: 2.2rem;
+  }
 }
 
 /* Modal styles */

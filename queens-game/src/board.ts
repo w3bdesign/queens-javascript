@@ -136,9 +136,13 @@ export class Board {
         window.clearTimeout(touchTimeout);
       }
 
+      // Add long-press class after a short delay
+      cell.classList.add('long-press');
+
       // Set a timeout to detect long press
       touchTimeout = window.setTimeout(() => {
         if (!isTouchMoved) {
+          cell.classList.remove('long-press');
           this.handleRightClick(position);
         }
       }, 500);
@@ -154,12 +158,14 @@ export class Board {
       if (touchTimeout) {
         window.clearTimeout(touchTimeout);
       }
+      cell.classList.remove('long-press');
     });
 
     cell.addEventListener('touchcancel', () => {
       if (touchTimeout) {
         window.clearTimeout(touchTimeout);
       }
+      cell.classList.remove('long-press');
       isTouchMoved = false;
     });
 
