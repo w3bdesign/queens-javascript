@@ -1,9 +1,21 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
+
+interface BoardPosition {
+  row: number;
+  col: number;
+}
+
+interface Puzzle {
+  queens: BoardPosition[];
+  board: string;
+  regions: number[][];
+  number?: number;
+}
 
 const BOARD_SIZE = 5;
 
 // Different region layout patterns
-const REGION_LAYOUTS = [
+const REGION_LAYOUTS: number[][][] = [
   // Original layout
   [
     [1, 1, 2, 2, 2],
@@ -33,52 +45,54 @@ const REGION_LAYOUTS = [
 /**
  * Rotates a region layout 90 degrees clockwise
  */
-function rotateLayout(layout) {
+function rotateLayout(layout: number[][]): number[][] {
   const size = layout.length;
-  const rotated = Array(size).fill().map(() => Array(size).fill(0));
-  
+  const rotated: number[][] = Array(size)
+    .fill(0)
+    .map(() => Array(size).fill(0));
+
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
       rotated[j][size - 1 - i] = layout[i][j];
     }
   }
-  
+
   return rotated;
 }
 
 /**
  * Flips a region layout horizontally
  */
-function flipLayout(layout) {
-  return layout.map(row => [...row].reverse());
+function flipLayout(layout: number[][]): number[][] {
+  return layout.map((row) => [...row].reverse());
 }
 
 /**
  * Gets a random region layout with possible rotation/flip
  */
-function getRandomLayout() {
+function getRandomLayout(): number[][] {
   // Pick a random base layout
   const baseLayout = REGION_LAYOUTS[Math.floor(Math.random() * REGION_LAYOUTS.length)];
-  let layout = baseLayout.map(row => [...row]);
-  
+  let layout = baseLayout.map((row) => [...row]);
+
   // Randomly rotate 0-3 times
   const rotations = Math.floor(Math.random() * 4);
   for (let i = 0; i < rotations; i++) {
     layout = rotateLayout(layout);
   }
-  
+
   // 50% chance to flip
   if (Math.random() < 0.5) {
     layout = flipLayout(layout);
   }
-  
+
   return layout;
 }
 
 /**
  * Checks if a queen can be placed at the given position
  */
-function isValidPosition(queens, row, col, regions) {
+function isValidPosition(queens: BoardPosition[], row: number, col: number, regions: number[][]): boolean {
   // Check each existing queen
   for (const queen of queens) {
     // Same row or column
@@ -97,7 +111,7 @@ function isValidPosition(queens, row, col, regions) {
 /**
  * Recursively tries to place queens to generate a valid puzzle
  */
-function generatePuzzle(queens = [], row = 0, regions) {
+function generatePuzzle(queens: BoardPosition[] = [], row = 0, regions: number[][]): BoardPosition[] | null {
   // Base case: if we have one queen in each unique region
   const uniqueRegions = new Set(regions.flat());
   if (queens.length === uniqueRegions.size) {
@@ -108,11 +122,11 @@ function generatePuzzle(queens = [], row = 0, regions) {
   for (let col = 0; col < BOARD_SIZE; col++) {
     if (isValidPosition(queens, row, col, regions)) {
       queens.push({ row, col });
-      
+
       // Try next row
       const result = generatePuzzle(queens, row + 1, regions);
       if (result) return result;
-      
+
       // Backtrack if no solution found
       queens.pop();
     }
@@ -129,7 +143,7 @@ function generatePuzzle(queens = [], row = 0, regions) {
 /**
  * Validates a complete puzzle solution
  */
-function validatePuzzle(queens, regions) {
+function validatePuzzle(queens: BoardPosition[], regions: number[][]): boolean {
   // Check we have the correct number of queens
   const uniqueRegions = new Set(regions.flat());
   if (queens.length !== uniqueRegions.size) {
@@ -165,33 +179,35 @@ function validatePuzzle(queens, regions) {
 /**
  * Formats the puzzle solution for output
  */
-function formatPuzzle(queens, regions) {
+function formatPuzzle(queens: BoardPosition[], regions: number[][]): Puzzle {
   // Create empty board
-  const board = Array(BOARD_SIZE).fill('.').map(() => Array(BOARD_SIZE).fill('.'));
-  
+  const board: string[][] = Array(BOARD_SIZE)
+    .fill('.')
+    .map(() => Array(BOARD_SIZE).fill('.'));
+
   // Place queens
-  queens.forEach(({row, col}) => {
+  queens.forEach(({ row, col }) => {
     board[row][col] = 'Q';
   });
 
   // Format as string
-  const boardStr = board.map(row => row.join(' ')).join('\n');
-  
+  const boardStr = board.map((row) => row.join(' ')).join('\n');
+
   return {
     queens,
     board: boardStr,
-    regions
+    regions,
   };
 }
 
 /**
  * Checks if a puzzle is unique compared to existing puzzles
  */
-function isPuzzleUnique(newPuzzle, existingPuzzles) {
-  return !existingPuzzles.some(existing => {
-    const existingQueens = new Set(existing.queens.map(q => `${q.row},${q.col}`));
-    const newQueens = new Set(newPuzzle.map(q => `${q.row},${q.col}`));
-    
+function isPuzzleUnique(newPuzzle: BoardPosition[], existingPuzzles: Puzzle[]): boolean {
+  return !existingPuzzles.some((existing) => {
+    const existingQueens = new Set(existing.queens.map((q) => `${q.row},${q.col}`));
+    const newQueens = new Set(newPuzzle.map((q) => `${q.row},${q.col}`));
+
     // Check if they have the same queen positions
     if (existingQueens.size !== newQueens.size) return false;
     for (const pos of existingQueens) {
@@ -203,7 +219,7 @@ function isPuzzleUnique(newPuzzle, existingPuzzles) {
 
 // Generate 10 unique puzzles with different layouts
 const numPuzzles = 10;
-const puzzles = [];
+const puzzles: Puzzle[] = [];
 let attempts = 0;
 const maxAttempts = 1000; // Prevent infinite loop
 
@@ -219,11 +235,17 @@ while (puzzles.length < numPuzzles && attempts < maxAttempts) {
 // Add puzzle numbers to whatever puzzles we generated
 const puzzlesWithNumbers = puzzles.map((puzzle, index) => ({
   ...puzzle,
-  number: index + 1
+  number: index + 1,
 }));
 
 // Always output valid JSON, even if we didn't get all puzzles
-console.log(JSON.stringify({
-  count: puzzles.length,
-  puzzles: puzzlesWithNumbers
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      count: puzzles.length,
+      puzzles: puzzlesWithNumbers,
+    },
+    null,
+    2
+  )
+);
