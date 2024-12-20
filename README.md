@@ -26,11 +26,14 @@ A puzzle game where you need to place queens on a 5x5 board following specific r
 
 ## Features
 
+- **Multiple Puzzles**: Choose from a variety of puzzles with different region layouts
 - **Auto-X Mode**: Automatically marks all squares that are attacked by placed queens
 - **Visual Feedback**: 
   - Invalid placements show error messages
   - Winning condition triggers a celebration animation
+  - Enhanced hover effects with region-specific colors
 - **Interactive Tutorial**: Helps players learn the game mechanics
+- **Puzzle Selection**: Switch between different puzzles using the dropdown menu
 
 ## Technical Implementation
 
@@ -42,6 +45,12 @@ The game is implemented in TypeScript with a focus on clean, maintainable code. 
 - Validates queen placements
 - Tracks attacked squares
 - Checks win conditions
+- Loads and manages multiple puzzle layouts
+
+### Puzzle Generator
+- Creates unique puzzles with different region layouts
+- Ensures each puzzle has a valid solution
+- Supports rotation and flipping of region layouts for variety
 
 ### State Management
 - Board state tracks position of queens and X markers
