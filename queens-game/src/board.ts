@@ -20,8 +20,7 @@ export class Board {
   private boardElement: HTMLElement;
   private autoXMode: boolean = true;
   private solution: BoardPosition[] | null = null;
-
-  private readonly colorRegions: number[][] = [
+  private currentRegions: number[][] = [
     [1, 1, 2, 2, 2],
     [1, 1, 2, 2, 2],
     [1, 2, 2, 3, 3],
@@ -47,22 +46,67 @@ export class Board {
       });
     }
 
-    this.initializeBoard();
+    // Set up puzzle selector
+    const selector = document.getElementById('puzzle-select') as HTMLSelectElement;
+    if (selector) {
+      selector.addEventListener('change', () => {
+        const puzzleNumber = parseInt(selector.value);
+        if (!isNaN(puzzleNumber)) {
+          this.loadPuzzle(puzzleNumber);
+        }
+      });
+    }
 
-    // Load test puzzle
-    this.loadPuzzle();
+    this.initializeBoard();
+    this.loadPuzzles();
   }
 
   /**
-   * Loads a puzzle from JSON and stores the solution
+   * Loads all available puzzles and populates the selector
    */
-  private async loadPuzzle(): Promise<void> {
+  private async loadPuzzles(): Promise<void> {
     try {
-      const response = await fetch('/puzzles/test-puzzle.json');
-      const puzzle = await response.json();
-      this.solution = puzzle.queens;
-      console.log('Puzzle loaded successfully:', puzzle);
-      console.log('Solution stored:', this.solution);
+      const response = await fetch('/puzzles/all-puzzles.json');
+      const data = await response.json();
+      
+      // Populate puzzle selector
+      const selector = document.getElementById('puzzle-select') as HTMLSelectElement;
+      if (selector) {
+        data.puzzles.forEach((puzzle: any) => {
+          const option = document.createElement('option');
+          option.value = puzzle.number.toString();
+          option.textContent = `Puzzle ${puzzle.number}`;
+          selector.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load puzzles:', error);
+    }
+  }
+
+  /**
+   * Loads a specific puzzle by number
+   */
+  private async loadPuzzle(puzzleNumber: number): Promise<void> {
+    try {
+      const response = await fetch('/puzzles/all-puzzles.json');
+      const data = await response.json();
+      const puzzle = data.puzzles.find((p: any) => p.number === puzzleNumber);
+      
+      if (puzzle) {
+        // Reset board
+        this.boardState = this.createEmptyBoard();
+        this.boardElement.innerHTML = '';
+        
+        // Update solution and regions
+        this.solution = puzzle.queens;
+        this.currentRegions = puzzle.regions;
+        
+        // Reinitialize board with new regions
+        this.initializeBoard();
+        
+        console.log('Puzzle loaded successfully:', puzzle);
+      }
     } catch (error) {
       console.error('Failed to load puzzle:', error);
     }
@@ -110,6 +154,11 @@ export class Board {
    * Initializes the game board by creating cells and adding event listeners
    */
   private initializeBoard(): void {
+    if (!this.currentRegions) {
+      console.error('No regions loaded');
+      return;
+    }
+
     for (let row = 0; row < Board.BOARD_SIZE; row++) {
       for (let col = 0; col < Board.BOARD_SIZE; col++) {
         const cell = this.createBoardCell({ row, col });
@@ -126,7 +175,7 @@ export class Board {
     const cell = document.createElement('div');
 
     // Set cell properties
-    cell.className = `cell region-${this.colorRegions[row][col]}`;
+    cell.className = `cell region-${this.currentRegions![row][col]}`;
     cell.dataset.row = row.toString();
     cell.dataset.col = col.toString();
 
@@ -222,7 +271,7 @@ export class Board {
           const sameRow = r === row;
           const sameCol = c === col;
           const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);
-          const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];
+          const sameRegion = this.currentRegions![r][c] === this.currentRegions![row][col];
 
           if (sameRow || sameCol || sameDiagonal || sameRegion) {
             this.placeX(position);
@@ -248,14 +297,10 @@ export class Board {
       this.removeQueen(position);
     } else if (this.boardState[row][col] === Board.X_SYMBOL) {
       // Show invalid placement message for X markers
-      
-      
       this.showInvalidPlacement(
         position,
         'Cannot place queen on attacked square (Left click to remove marker)'
       );
-
-
     } else {
       // Try to place new queen on empty square
       const validation = this.validateQueenPlacement(position);
@@ -267,7 +312,6 @@ export class Board {
       }
     }
   }
-
 
   /**
    * Places a queen on the board at the specified position
@@ -307,7 +351,7 @@ export class Board {
         const sameRow = r === row;
         const sameCol = c === col;
         const sameDiagonal = Math.abs(row - r) === Math.abs(col - c);
-        const sameRegion = this.colorRegions[r][c] === this.colorRegions[row][col];
+        const sameRegion = this.currentRegions![r][c] === this.currentRegions![row][col];
 
         if (sameRow || sameCol || sameDiagonal || sameRegion) {
           this.placeX(position);
@@ -446,11 +490,11 @@ export class Board {
    */
   private validateColorRegion(position: BoardPosition): BoardValidation {
     const { row, col } = position;
-    const region = this.colorRegions[row][col];
+    const region = this.currentRegions![row][col];
 
     for (let r = 0; r < Board.BOARD_SIZE; r++) {
       for (let c = 0; c < Board.BOARD_SIZE; c++) {
-        if (this.colorRegions[r][c] === region && this.boardState[r][c] === Board.QUEEN_SYMBOL) {
+        if (this.currentRegions![r][c] === region && this.boardState[r][c] === Board.QUEEN_SYMBOL) {
           return {
             isValid: false,
             reason: 'Color region already contains a queen',
@@ -506,13 +550,13 @@ export class Board {
     }
 
     // Check if we have the right number of queens (one per region)
-    const uniqueRegions = new Set(this.colorRegions.flat());
+    const uniqueRegions = new Set(this.currentRegions!.flat());
     if (currentQueens.length !== uniqueRegions.size) return;
 
     // Check if each queen is in a unique region
     const queenRegions = new Set();
     for (const queen of currentQueens) {
-      const region = this.colorRegions[queen.row][queen.col];
+      const region = this.currentRegions![queen.row][queen.col];
       if (queenRegions.has(region)) return;
       queenRegions.add(region);
     }
