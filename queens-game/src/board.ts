@@ -19,6 +19,7 @@ export class Board {
   private boardState: CellState[][];
   private boardElement: HTMLElement;
   private autoXMode: boolean = true;
+  private solution: BoardPosition[] | null = null;
 
   private readonly colorRegions: number[][] = [
     [1, 1, 2, 2, 2],
@@ -47,6 +48,24 @@ export class Board {
     }
 
     this.initializeBoard();
+
+    // Load test puzzle
+    this.loadPuzzle();
+  }
+
+  /**
+   * Loads a puzzle from JSON and stores the solution
+   */
+  private async loadPuzzle(): Promise<void> {
+    try {
+      const response = await fetch('/puzzles/test-puzzle.json');
+      const puzzle = await response.json();
+      this.solution = puzzle.queens;
+      console.log('Puzzle loaded successfully:', puzzle);
+      console.log('Solution stored:', this.solution);
+    } catch (error) {
+      console.error('Failed to load puzzle:', error);
+    }
   }
 
   /**
@@ -222,6 +241,7 @@ export class Board {
    */
   private handleRightClick(position: BoardPosition): void {
     const { row, col } = position;
+    console.log('Right click at position:', position);
 
     if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
       // Remove existing queen
@@ -472,24 +492,34 @@ export class Board {
   }
 
   /**
-   * Checks if the current board state represents a winning condition
+   * Checks if the current board state matches the solution
    */
   private checkWinCondition(): void {
-    let queenCount = 0;
+    // Get current queen positions
+    const currentQueens: BoardPosition[] = [];
     for (let row = 0; row < Board.BOARD_SIZE; row++) {
       for (let col = 0; col < Board.BOARD_SIZE; col++) {
         if (this.boardState[row][col] === Board.QUEEN_SYMBOL) {
-          queenCount++;
+          currentQueens.push({ row, col });
         }
       }
     }
 
-    // Get number of unique regions
-    const uniqueRegions = new Set(this.colorRegions.flat()).size;
-    // Win when we have exactly one queen in each region
-    if (queenCount === uniqueRegions) {
-      this.showWinAnimation();
+    // Check if we have the right number of queens (one per region)
+    const uniqueRegions = new Set(this.colorRegions.flat());
+    if (currentQueens.length !== uniqueRegions.size) return;
+
+    // Check if each queen is in a unique region
+    const queenRegions = new Set();
+    for (const queen of currentQueens) {
+      const region = this.colorRegions[queen.row][queen.col];
+      if (queenRegions.has(region)) return;
+      queenRegions.add(region);
     }
+
+    // All queens are placed correctly
+    console.log('Puzzle solved!');
+    this.showWinAnimation();
   }
 
   /**

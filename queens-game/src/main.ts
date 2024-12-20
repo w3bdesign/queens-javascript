@@ -2,7 +2,7 @@ import './style.css';
 import { Board } from './board';
 import { Tutorial } from './tutorial';
 
-document.addEventListener('DOMContentLoaded', (): void => {
+window.addEventListener('load', (): void => {
     try {
         // Initialize game components
         new Board();
