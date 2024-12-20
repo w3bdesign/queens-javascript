@@ -123,6 +123,52 @@ export class Board {
       this.handleRightClick(position);
     });
 
+    // Add touch event listeners for mobile devices
+    let touchTimeout: number;
+    let isTouchMoved = false;
+
+    cell.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      isTouchMoved = false;
+      
+      // Clear any existing timeout
+      if (touchTimeout) {
+        window.clearTimeout(touchTimeout);
+      }
+
+      // Add long-press class after a short delay
+      cell.classList.add('long-press');
+
+      // Set a timeout to detect long press
+      touchTimeout = window.setTimeout(() => {
+        if (!isTouchMoved) {
+          cell.classList.remove('long-press');
+          this.handleRightClick(position);
+        }
+      }, 500);
+
+      this.handleTouchStart(e, position);
+    });
+
+    cell.addEventListener('touchmove', () => {
+      isTouchMoved = true;
+    });
+
+    cell.addEventListener('touchend', () => {
+      if (touchTimeout) {
+        window.clearTimeout(touchTimeout);
+      }
+      cell.classList.remove('long-press');
+    });
+
+    cell.addEventListener('touchcancel', () => {
+      if (touchTimeout) {
+        window.clearTimeout(touchTimeout);
+      }
+      cell.classList.remove('long-press');
+      isTouchMoved = false;
+    });
+
     return cell;
   }
 
@@ -193,6 +239,17 @@ export class Board {
       } else {
         this.showInvalidPlacement(position, validation.reason);
       }
+    }
+  }
+
+  /**
+   * Handles touch start events for mobile devices
+   * Single tap: Place/remove X
+   * Long press: Place/remove queen
+   */
+  private handleTouchStart(event: TouchEvent, position: BoardPosition): void {
+    if (event.touches.length === 1) {
+      this.handleLeftClick(position);
     }
   }
 

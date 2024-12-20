@@ -30,7 +30,7 @@ export class Tutorial {
             board: Array(5).fill(null).map((_) =>
                 Array(5).fill(null).map(() => ({}))
             ),
-            text: `Controls: Right-click to place/remove ${Tutorial.QUEEN}s, left-click to mark/unmark squares with ${Tutorial.X}. Let's begin!`,
+            text: `Controls:\n• Mouse: Right-click to place/remove ${Tutorial.QUEEN}s, left-click to mark/unmark squares with ${Tutorial.X}\n• Mobile: Tap to mark/unmark ${Tutorial.X}s (manual mode), long-press to place/remove ${Tutorial.QUEEN}s\n• Auto-X mode: When enabled, ${Tutorial.X}s are automatically placed on squares attacked by queens\n\nLet's begin!`,
             buttonText: "Got it"
         },
         {
