@@ -205,23 +205,11 @@ export class Board {
   /**
    * Handles touch start events for mobile devices
    */
-  private handleTouchStart(event: TouchEvent): void {
-    const touch = event.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    if (target) {
-      const cell = target.closest('.cell');
-      if (cell) {
-        const row = parseInt(cell.getAttribute('data-row') || '0', 10);
-        const col = parseInt(cell.getAttribute('data-col') || '0', 10);
-        const newPosition = { row, col };
-
-        if (event.touches.length === 1) {
-          this.handleLeftClick(newPosition);
-        } else if (event.touches.length === 2) {
-          this.handleRightClick(newPosition);
-        }
-      }
+  private handleTouchStart(event: TouchEvent, position: BoardPosition): void {
+    if (event.touches.length === 1) {
+      this.handleLeftClick(position);
+    } else if (event.touches.length === 2) {
+      this.handleRightClick(position);
     }
   }
 
